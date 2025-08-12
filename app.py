@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+from routes.user import user_bp
+from routes.auth import auth_bp
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
+app.secret_key = 'abc123'
 
 # definindo modelo de dados
 class Tasks(db.Model):
@@ -11,15 +14,18 @@ class Tasks(db.Model):
     description = db.Column(db.String(100), unique=True, nullable=False)
 
 
-@app.route('/')
-def root():
-    return '<h1>pagina inicial</h1>'
+# @app.route('/')
+# def root():
+#     return '<h1>pagina inicial</h1>'
 
 
+# registrando o blueprint
+app.register_blueprint(user_bp, url_prefix='/user')
+app.register_blueprint(auth_bp, url_prefix='/auth')
 
 # cRud - read
-@app.route('/home')
-def index():
+@app.route('/todo')
+def root():
     tasks = Tasks.query.all()
     return render_template('index.html', tasks=tasks)
 
